@@ -4,7 +4,9 @@ import { MapContainer } from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer'
 import { Marker } from 'react-leaflet'
 import { useMap } from 'react-leaflet'
+import L from 'leaflet'
 import Arrow from './assets/images/icon-arrow.svg'
+import Pointer from './assets/images/icon-location.svg'
 import { Popup } from 'react-leaflet'
 import $ from 'jquery'
 
@@ -29,8 +31,6 @@ function App() {
             return data;
           }
         }).then((res) => {
-          console.log("In meme");
-          console.log(res)
           setPos(() => [res.location.lat, res.location.lng])
           return [res.location.lat, res.location.lng]
         })
@@ -39,6 +39,14 @@ function App() {
       console.log('error')
     }
   }
+
+function GetIcon() {
+  return L.icon({
+    iconUrl: Pointer,
+    iconSize: [30,45],
+  });
+}
+
 
   function SetViewOnSubmit() {
     const map = useMap()
@@ -58,32 +66,34 @@ function App() {
             </form>
           </div>
         </header>
-        {ipData && <div className='results'>
-          <table>
-            <thead>
-              <tr>
-                <th>IP ADDRESS</th>
-                <th>LOCATION</th>
-                <th>TIMEZONE</th>
-                <th>ISP</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{ipData.ip}</td>
-                <td>{ipData.location.city + ", " + ipData.location.region+" "+(ipData.location.postalCode || ipData.location.country)}</td>
-                <td>{"UTC " + ipData.location.timezone}</td>
-                <td>{ipData.isp}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>}
+        {ipData &&
+          <div className='results'>
+            <div className='result-block'>
+              <h2>IP ADDRESS</h2>
+              <p>{ipData.ip}</p>
+            </div>
+            <div className='result-block'>
+              <h2>LOCATION</h2>
+              <p>{ipData.location.city + ", " + ipData.location.region + " " + (ipData.location.postalCode || ipData.location.country)}</p>
+            </div>
+            <div className='result-block'>
+              <h2>TIMEZONE</h2>
+              <p>{"UTC " + ipData.location.timezone}</p>
+            </div>
+            <div className='result-block'>
+              <h2>ISP</h2>
+              <p>{ipData.isp}</p>
+            </div>
+          </div>}
         <MapContainer center={pos} zoom={13} scrollWheelZoom={false}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {ipData && <Marker position={pos}>
+          {ipData && <Marker
+            position={pos}
+            icon={GetIcon()}
+          >
             <Popup className='popup'>
               <h2 className='popup'>Welcome to {ipData.location.city + ", " + ipData.location.country}</h2><br />
               <p className='popup'>Latitude: {pos[0]}, Longitude: {pos[1]}</p>
